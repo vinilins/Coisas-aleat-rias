@@ -1,0 +1,191 @@
+while True:
+    print("-------------------------\nJogar ----- 1\nSair ------ 2")
+    n = input("O que deseja fazer? ")
+    if n=='1':
+        print('POSIÇÕES')
+        print('1/2/3')
+        print('-----')
+        print('4/5/6')
+        print('-----')
+        print('7/8/9')
+        print(' ')
+        print("Jogo iniciado!")
+        cont=0
+        lista=[' ','/',' ','/', ' ',' ','/',' ','/', ' ',' ','/',' ','/', ' ']
+        for i in lista:
+            cont += 1
+            if cont % 5 == 0:
+                if cont != 15:
+                    print('\n-----')
+                    continue
+            print(i, end='')
+
+        jogador=0
+        jog=''
+        print('\n')
+        lista=[' ','/',' ','/',' ',' ','/',' ','/', ' ',' ','/',' ','/', ' ']
+        while True:
+            if jogador%2==0:
+                if jogador>=1:
+                    print('\n')
+                print('Vez do jogador 1 (X)')
+                jog='X'
+            else:
+                if jogador >= 1:
+                    print("\n")
+                print('Vez do jogador 2 (O)')
+                jog='O'
+            x=input('Diga a posição que deseja:')
+            if x=='1':
+                if lista[0]==' ':
+                    lista.insert(0,jog)
+                    del lista[1]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='2':
+                if lista[2]==' ':
+                    lista.insert(2,jog)
+                    del lista[3]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='3':
+                if lista[4]==' ':
+                    lista.insert(4,jog)
+                    del lista[5]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='4':
+                if lista[5]==' ':
+                    lista.insert(5,jog)
+                    del lista[6]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='5':
+                if lista[7]==' ':
+                    lista.insert(7,jog)
+                    del lista[8]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='6':
+                if lista[9]==' ':
+                    lista.insert(9,jog)
+                    del lista[10]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='7':
+                if lista[10]==' ':
+                    lista.insert(10,jog)
+                    del lista[11]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='8':
+                if lista[12]==' ':
+                    lista.insert(12,jog)
+                    del lista[13]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            elif x=='9':
+                if lista[14]==' ':
+                    lista.insert(14,jog)
+                    del lista[15]
+                else:
+                    print('Esse espaço já está ocupado. Diga outra posição!')
+                    continue
+            cont=0
+            for i in lista:
+                cont+=1
+                if cont%5==0:
+                    if cont!=15:
+                        print('{}\n-----'.format(i))
+                        continue
+                print(i, end='')
+            jogador += 1
+            if lista[0]==lista[2]==lista[4]!=' ':
+                if lista[0]==lista[2]==lista[4]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[0]==lista[2]==lista[4]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[5]==lista[7]==lista[9]!=' ':
+                if lista[5]==lista[7]==lista[9]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[5]==lista[7]==lista[9] == 'O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[10]==lista[12]==lista[14]!=' ':
+                if lista[10]==lista[12]==lista[14]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[10]==lista[12]==lista[14]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[0]==lista[5]==lista[10]!=' ':
+                if lista[0]==lista[5]==lista[10]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[0]==lista[5]==lista[10]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[2]==lista[7]==lista[12]!=' ':
+                if lista[2]==lista[7]==lista[12]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[2]==lista[7]==lista[12]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[4]==lista[9]==lista[14]!=' ':
+                if lista[4]==lista[9]==lista[14]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[4]==lista[9]==lista[14]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[0]==lista[7]==lista[14]!=' ':
+                if lista[0]==lista[7]==lista[14]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[0]==lista[7]==lista[14]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[4]==lista[7]==lista[10]!=' ':
+                if lista[4]==lista[7]==lista[10]=='X':
+                    print('\n')
+                    print("O jogador 1 venceu")
+                    break
+                elif lista[4]==lista[7]==lista[10]=='O':
+                    print('\n')
+                    print("O jogador 2 venceu")
+                    break
+            elif lista[0]!=' ' and lista[2]!=' ' and lista[4]!=' ' and lista[5]!=' ' and lista[7]!=' ' and lista[9]!=' ' and lista[10]!=' ' and lista[12]!=' ' and lista[14]!=' ':
+                print('\n')
+                print('Velha')
+                break
+    elif n=='2':
+        print("Okay, até mais!")
+        break
+    else:
+        continue
