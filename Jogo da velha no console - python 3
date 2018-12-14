@@ -1,3 +1,4 @@
+
 while True:
     print("-------------------------\nJogar ----- 1\nSair ------ 2")
     n = input("O que deseja fazer? ")
@@ -99,6 +100,10 @@ while True:
                 else:
                     print('Esse espaço já está ocupado. Diga outra posição!')
                     continue
+            else:
+                print('Digite uma posição válida!')
+                print(' ')
+                continue
             cont=0
             for i in lista:
                 cont+=1
