@@ -1,0 +1,112 @@
+#frequencia
+
+n = input()
+n1= n
+letras = []
+frequencia=[]
+matriz=[]
+for x in n:
+    contador = n.count(x)
+    if contador != 0:
+        letras.append(x)
+        frequencia.append(contador)
+    for y in range(len(n)):
+        n = n.replace(x,"")
+for x in range(len(letras)):
+    lista=[]
+    copiafrequencia=frequencia[:]
+    copiafrequencia.sort()
+    local = frequencia.index(copiafrequencia[0])
+    lista.append(letras[local])
+    lista.append(frequencia[local])
+    matriz.append(lista)
+    del copiafrequencia[0]
+    del letras[local]
+    del frequencia[local]
+copiamatriz=matriz[:]
+
+#arvore
+
+lista=[]
+class no(object):
+    def __init__(self,filhoesq,filhodir):
+        self.filhoesq = filhoesq
+        self.filhodir = filhodir
+        self.valor = filhoesq[1]+filhodir[1]
+
+#criando arvore
+contador1 = 0
+contador2 = 1
+while True:
+    if matriz==[]:
+        break
+    else:
+
+        condicao=0
+        if len(matriz)>=2:
+            minilista=[]
+            node = no(matriz[contador1],matriz[contador2])
+            minilista.append('NÓ')
+            minilista.append(node.valor)
+            minilista.append(node)
+            del matriz[contador1]
+            del matriz[contador1]
+            for x in range(len(matriz)):
+                if matriz[x][1]>node.valor:
+                    posi = matriz.index(matriz[x])
+                    matriz.insert(posi,minilista)
+                    condicao = 1
+                    break
+            if condicao==0:
+                matriz.insert(len(matriz),minilista)
+
+        elif len(matriz)==1:
+            break
+
+
+def percorrer(no, caminho, codigos, minicodigos):
+    if len(no) == 2:
+        minicodigos = []
+        minicodigos.append(no[0])
+        minicodigos.append(caminho)
+        codigos.append(minicodigos)
+        return
+    percorrer(no[2].filhoesq, caminho + '0', codigos, minicodigos)
+    percorrer(no[2].filhodir, caminho + '1', codigos, minicodigos)
+
+
+direcao = 0
+direcao2 = 0
+codigos = []
+caminho = ''
+minicodigos=[]
+
+percorrer(matriz[0], caminho, codigos , minicodigos)
+
+
+for x in n1:
+    for y in codigos:
+        if y[0]==x:
+            cod = y[1]
+            break
+    mult = n1.count(x)
+    n1 = n1.replace(x, cod, mult )
+
+print(n1)
+tamanhos=[]
+ultcodigos = {}
+for x in codigos:
+    minilista2 = []
+    tam = len(x[1])
+    if tam in tamanhos:
+        continue
+    else:
+        tamanhos.append(tam)
+    for y in codigos:
+        if len(y[1])==tam:
+            pass
+        minilista2.append(y)
+    ultcodigos[tam] = minilista2
+
+
+print(ultcodigos)
