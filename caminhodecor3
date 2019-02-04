@@ -1,0 +1,326 @@
+#!/usr/bin/env python3
+from ev3dev.ev3 import *
+from time import sleep
+
+
+class Robozin(object):
+    def __init__(self):
+
+        # analogicos
+        # motors
+        self.motor_D, self.motor_E = LargeMotor("outA"), LargeMotor("outB")
+
+        # Sensors
+
+        self.giroS, self.colorESQ, self.colorDIR, self.infraS = GyroSensor("in1"), ColorSensor("in4"), ColorSensor(
+            "in2"), InfraredSensor("in3")
+
+        # mode
+
+        self.giroS.mode, self.colorESQ.mode, self.colorDIR.mode, self.infraS.mode = "GYRO-ANG", "COL-COLOR", "COL-COLOR", "IR-PROX"
+
+        # Globais
+
+        self.caminho = []
+        self.curva, self.voltando, self.verdeB = False, False, False  # False Booleans
+
+        self.velocidadeE, self.velocidadeD = 300, 300  # Velocidades
+
+        self.angulo_in, self.variacao, self.erro_ang = self.giroS.value(), 100, 0  # Angulos
+
+        self.verm, self.verd, self.azul = 0, 0, 0
+
+    def gyro(self, atrasado, adiantado):
+        speed = self.velocidadeD + (self.erro_ang * self.variacao)
+        if speed < 0:
+            speed = - speed
+        # Sound.tone(speed, 1000)
+        print("%s  -  %s    ---  %s" % (self.angulo_in, self.giroS.value(), speed))
+        while self.erro_ang not in range(-1, 1):
+            atrasado.run_forever(speed_sp=speed)
+            adiantado.run_forever(speed_sp=speed / 2)
+            self.andar()
+
+    def giroscopio(self):
+        print("%s  -  %s" % (self.angulo_in, self.giroS.value()))
+        if self.giroS.value() < self.angulo_in:  # erro esquerda
+            print("direita")
+            self.erro_ang = self.angulo_in - self.giroS.value()
+            if self.erro_ang in range(-7, 8):
+                self.gyro(self.motor_E, self.motor_D)
+            else:
+                self.motor_D.stop()
+                self.motor_E.stop()
+                while self.giroS.value() < self.angulo_in:
+                    self.motor_E.run_forever(speed_sp=50)
+                    self.motor_D.run_forever(speed_sp=-50)
+        elif self.giroS.value() > self.angulo_in:  # "Erro direita"
+            print("esquerda")
+            self.erro_ang = self.giroS.value() - self.angulo_in
+            if self.erro_ang in range(-7, 8):
+                self.gyro(self.motor_D, self.motor_E)
+            else:
+                self.motor_D.stop()
+                self.motor_E.stop()
+                while self.giroS.value() > self.angulo_in:
+                    self.motor_D.run_forever(speed_sp=50)
+                    self.motor_E.run_forever(speed_sp=-50)
+
+    def andar(self): # sensores detectando a cor branca
+            print("o rei delas: %i" % self.infraS.value())
+            # Correção de infrared
+            if self.infraS.value() >= 22:  # Correção saindo
+                print("sai")
+                self.motor_D.run_to_rel_pos(position_sp=180, speed_sp=100)
+                self.motor_E.run_to_rel_pos(position_sp=90, speed_sp=100)
+                self.motor_D.wait_while("running")
+                self.motor_E.wait_while("running")
+                self.motor_D.stop()
+                self.motor_E.stop()
+                print('sleep')
+
+            elif self.infraS.value() <= 12:  # correção voltando
+                print('entra', self.infraS.value(), self.infraS.value())
+                self.motor_D.stop()
+                self.motor_E.stop()
+
+                # Fatiou
+
+                self.motor_E.run_forever(speed_sp=200)
+                self.motor_D.run_forever(speed_sp=30)
+                sleep(1.5)
+
+                #passou
+
+                self.motor_E.run_to_rel_pos(position_sp=70, speed_sp=100)
+                self.motor_D.run_to_rel_pos(position_sp=70, speed_sp=100)
+                self.motor_D.wait_while("running")
+                self.motor_E.wait_while("running")
+
+                # Andou pokin
+
+                self.motor_D.stop()
+                self.motor_E.stop()
+                print('giroscopio %d, infrared %d' % (self.giroS.value(), self.infraS.value()))
+
+
+                # Retornou
+
+                while self.angulo_in < self.giroS.value()+1:
+                    self.motor_D.run_forever(speed_sp=50)
+                    self.motor_E.run_forever(speed_sp=-50)
+
+                self.motor_D.stop()
+                self.motor_E.stop()
+
+                self.motor_E.run_to_rel_pos(position_sp=180, speed_sp=100)
+                self.motor_D.run_to_rel_pos(position_sp=180, speed_sp=100)
+                self.motor_D.wait_while("running")
+                self.motor_E.wait_while("running")
+
+
+            else:
+
+                self.motor_E.run_forever(speed_sp=self.velocidadeE)
+                self.motor_D.run_forever(speed_sp=self.velocidadeD)
+
+
+    def meiavolta(self):
+        print("Virando...")
+        self.voltando = True
+        angulo = self.giroS.value()  # angulo_inicial
+        ang_rel = angulo + 180  # angulo final
+        while angulo < ang_rel:
+            angulo = self.giroS.value()
+            self.motor_E.run_forever(speed_sp=400)
+            self.motor_D.run_forever(speed_sp=-400)
+        self.angulo_in = self.giroS.value() - 7
+        print(self.giroS.value(), self.angulo_in)
+
+    def curvaD(self):
+        print("Virando...", self.colorDIR.value(), self.colorESQ.value())
+
+        #Entrada da Cor
+
+        self.giroscopio()
+
+        self.voltando = False
+        self.motor_D.stop()
+        self.motor_E.stop()
+        print("%s  -  %s" % (self.angulo_in, self.giroS.value()))
+        print("Virando...", self.colorDIR.value(), self.colorESQ.value())
+
+        while self.colorESQ.value() != 6 or self.colorDIR.value() != 6:
+            self.motor_D.run_forever(speed_sp=70)
+            self.motor_E.run_forever(speed_sp=70)
+
+        Sound.tone(2000, 500)
+        self.motor_D.stop()
+        self.motor_E.stop()
+
+        self.motor_D.run_to_rel_pos(position_sp=-100, speed_sp=200)
+        self.motor_E.run_to_rel_pos(position_sp=-100, speed_sp=200)
+        self.motor_D.wait_while("running")
+        self.motor_E.wait_while("running")
+        Sound.tone(400, 1000)
+        # Angulação da curva
+        self.motor_D.stop()
+        self.motor_E.stop()
+
+        if self.erro_ang > 0:
+            angulod = self.giroS.value()
+            ang_reld = angulod + (84 + self.erro_ang)
+        elif self.erro_ang < 0:
+            angulod = self.giroS.value()
+            ang_reld = angulod + (84 - self.erro_ang)
+        else:
+            angulod = self.giroS.value()
+            ang_reld = angulod + 84
+
+        self.motor_D.stop()
+        self.motor_E.stop()
+        if self.giroS.value() > self.angulo_in:
+            while self.giroS.value() > self.angulo_in:
+                self.motor_D.run_forever(speed_sp=50)
+        elif self.giroS.value() < self.angulo_in:
+            while self.giroS.value() < self.angulo_in:
+                self.motor_E.run_forever(speed_sp=50)
+
+        self.motor_D.stop()
+        self.motor_E.stop()
+
+        while angulod < ang_reld:
+            angulod = self.giroS.value()
+            self.motor_E.run_forever(speed_sp=400)
+            self.motor_D.run_forever(speed_sp=-400)
+
+        self.motor_D.run_to_rel_pos(position_sp=200, speed_sp=100)
+        self.motor_E.run_to_rel_pos(position_sp=200, speed_sp=100)
+        self.motor_D.wait_while("running")
+        self.motor_E.wait_while("running")
+
+        self.angulo_in = self.giroS.value()
+        self.main()
+
+    def caminhoinverso(self):
+        if self.verm == 0 and self.verd == 0 and self.azul == 0:
+            self.verm = 1
+            self.verd = 1
+            self.azul = 1
+            return ('indo')
+        else:
+            self.verm = 0
+            self.verd = 0
+            self.azul = 0
+            return ('voltando')
+
+    def curvaE(self):
+        print("Virando...")
+        self.voltando = False
+        # Angulação da curva
+
+        if self.erro_ang > 0:
+            anguloe = self.giroS.value()
+            if self.erro_ang <= 0:
+                print(self.erro_ang)
+            ang_rele = anguloe - (80 - self.erro_ang)
+        elif self.erro_ang < 0:
+            anguloe = self.giroS.value()
+            ang_rele = anguloe - (80 + self.erro_ang)
+        else:
+            anguloe = self.giroS.value()
+            ang_rele = anguloe - 80
+
+        # Curva
+
+        self.motor_D.stop()
+        self.motor_E.stop()
+        if self.giroS.value() > self.angulo_in:
+            while self.giroS.value() > self.angulo_in:
+                self.motor_D.run_forever(speed_sp=50)
+        elif self.giroS.value() < self.angulo_in:
+            while self.giroS.value() < self.angulo_in:
+                self.motor_E.run_forever(speed_sp=50)
+
+        self.motor_D.stop()
+        self.motor_E.stop()
+
+        while anguloe > ang_rele:
+            anguloe = self.giroS.value()
+            self.motor_E.run_forever(speed_sp=-400)
+            self.motor_D.run_forever(speed_sp=400)
+
+    def main(self):
+        Sound.beep()
+        while True:
+            if self.colorESQ.value() != self.colorDIR.value():
+                print("cores")
+                self.motor_D.stop()
+                self.motor_E.stop()
+                while self.colorESQ.value() != self.colorDIR.value():
+                    self.motor_E.run_forever(speed_sp=-50)
+                    self.motor_D.run_forever(speed_sp=-50)
+
+                if self.angulo_in > self.giroS.value():
+                    while self.angulo_in != range(self.giroS.value()-2, 1):
+                        self.motor_E.run_forever(speed_sp=50)
+                        self.motor_D.run_forever(speed_sp=-50)
+
+                else:
+                    while self.giroS.value() > self.angulo_in:
+                        self.motor_E.run_forever(speed_sp=-50)
+                        self.motor_D.run_forever(speed_sp=50)
+
+            if self.colorESQ.value() == 1 and self.colorDIR.value() == 1:  # Preto
+                self.meiavolta()
+                print("vanbora")
+                # self.caminhoinverso()
+
+            elif self.colorESQ.value() == 2 and self.colorDIR.value() == 2:  # azul
+                Sound.tone(100, 1000)
+                self.motor_D.stop()
+                self.motor_E.stop()
+                self.curvaD()
+                # self.Andar()
+                break
+            elif self.colorESQ.value() == 3:  # Verde
+                if not self.verdeB:
+                    self.verdeB = True
+                    Sound.beep()
+                    Sound.beep()
+                    if self.caminhoinverso() == 'indo':
+                        self.motor_D.stop()
+                        self.motor_E.stop()
+                        self.curvaE()
+                        self.motor_D.run_forever(speed_sp=300)
+                        self.motor_E.run_forever(speed_sp=300)
+                    else:
+                        self.motor_D.stop()
+                        self.motor_E.stop()
+                        self.curvaD()
+                        self.motor_D.run_forever(speed_sp=300)
+                        self.motor_E.run_forever(speed_sp=300)
+                    self.angulo_in = self.giroS.value()
+                else:
+                    self.motor_D.stop()
+                    self.motor_E.stop()
+                    self.andar()
+
+            elif self.colorESQ.value() == 5:  # Vermelho
+                self.curvaD()
+
+            elif self.colorDIR.value() == 6 and self.colorESQ.value() == 6: #Branco
+                self.andar()
+
+        self.motor_E.stop()
+        self.motor_D.stop()
+
+    def andacarai(self):
+        while True:
+            self.andar()
+
+
+#Robozin().main()
+Robozin().andacarai()
+
+# colors = ["nda","preto","azul","verde","amarelo","vermelho","branco","marrom"]
